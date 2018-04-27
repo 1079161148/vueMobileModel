@@ -1,0 +1,104 @@
+//vue使用sass需要安装sass、sass-loader、node-sass、extract-text-webpack-plugin(让webpack可以输出css格式的文件)
+//移动端sass常用自定义函数
+//组件页面调用 @include font-dpr(16px);字体在不同dpr区分大小；
+@mixin font-dpr($font-size) {
+    font-size: $font-size;
+    [data-dpr="2"] & {
+        font-size: $font-size * 2;
+    }
+    [data-dpr="3"] & {
+        font-size: $font-size * 3;
+    }
+}
+//引用例子：@include clearfix();清除浮动
+@mixin clearfix() {
+    &:before,
+    &:after {
+        content: "";
+        display: table;
+    }
+    &:after {
+        clear: both;
+    }
+}
+//调用background:black(0.1);自定义函数设置透明
+@function black($opacity) {
+    @return rgba(0, 0, 0, $opacity)
+}
+
+@function white($opacity) {
+    @return rgba(255, 255, 255, $opacity)
+}
+
+//引用例子:@include box-shadowbox(0.8, 0.05);  内阴影和外阴影
+@mixin box-shadowbox($opacity, $opacity2) {
+    box-shadow: white($opacity) 0 1px 0, inset black($opacity2) 0 1px 0;
+}
+
+//例子：@include regulaTriangle(top,red);正三角(dashed默认透明)
+@mixin regulaTriangle($derection:bottom, $color: #000, $width: 20px) {
+    @extend %triangleBase;
+    border-width: $width;
+    //向右
+    @if $derection==right {
+        border-style: dashed dashed dashed solid;
+        border-color: transparent transparent transparent $color;
+    }
+    //向左
+    @if $derection==left {
+        border-style: dashed solid dashed dashed;
+        border-color: transparent $color transparent transparent;
+    }
+    //向上
+    @if $derection==top {
+        border-style: dashed dashed solid dashed;
+        border-color: transparent transparent $color transparent;
+    }
+    //向下
+    @if $derection==bottom {
+        border-style: solid dashed dashed dashed;
+        border-color: $color transparent transparent transparent;
+    }
+}
+//透明度 调用@include opacity(0.5)小数;
+@mixin opacity($opacity:50) {
+  opacity: $opacity / 100;
+  @if $filter{
+    filter: alpha(opacity=$opacity);
+  }
+}
+
+//组件调用@include radius(5px);css3前缀处理；
+@mixin prefix($key , $value){
+  -webkit-#{$key}: $value;
+  -moz-#{$key}: $value;
+  -o-#{$key}: $value;
+  #{$key}: $value;
+}
+
+@mixin radius($value){ //倒圆角
+    @include prefix(border-radius,$value);
+}
+
+//使用@include px2rem(line-height, 22); @include px2rem(margin, 40 0);任意属性和任意值
+@mixin px2rem($property, $values,$baseline-rem:75) {
+  $max: length($values);//返回$values列表的长度值
+  $pxValues: '';
+  $remValues: '';
+  @for $i from 1 through $max {
+    $value: (nth($values, $i));
+    $remValues: #{$remValues + $value/$baseline-rem}rem;
+
+    @if $i < $max {
+      $remValues: #{$remValues + " "};
+    }
+  }
+  #{$property}: $remValues;
+}
+//注：通用的都可以写成@mixin
+
+//自定义变量
+$cold50:#db1d50;
+$colhywk: #fe6733;
+$width:1200px;
+//sass有两种注释方式，一种是标准的css注释方式 /* */，另一种则是 //双斜杆形式的单行注释，不过这种单行注释不会被转译出来
